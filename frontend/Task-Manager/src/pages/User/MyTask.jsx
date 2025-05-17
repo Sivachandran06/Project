@@ -1,10 +1,10 @@
 import React from "react";
 
-const Login = ()=>{
+const MyTask =()=>{
     return(
         <>
-        <div>Login</div>
+        <div>MyTask</div>
         </>
     )
 }
-export default Login;
+export default MyTask;
