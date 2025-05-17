@@ -2,14 +2,16 @@ import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./pages/Auth/Login";
 import Signup from "./pages/Auth/Signup";
-import PrivateRoute from "./routes/PrivatRoute";
 import Dashboard from "./pages/Admin/Dashboard";
 import ManageTask from "./pages/Admin/ManageTask";
 import CreatTask from "./pages/Admin/CreatTask";
 import ManageUser from "./pages/Admin/ManageUser";
+
 import UserDashboard from "./pages/User/UserDashboard";
 import MyTask from "./pages/User/MyTask";
 import ViewTaskDetails from "./pages/User/ViewTaskDetails";
+
+import PrivateRoute from "./routes/PrivatRoute";
 
 const App = () => {
   return (
