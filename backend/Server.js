@@ -4,6 +4,8 @@ const cros = require("cors");
 const path = require("path");
 const contentDb = require("./config/Db");
 
+const authRoutes = require("./routes/authRoutes");
+
 const app = express();
 
 // Middleware to handel CROS
@@ -21,7 +23,7 @@ contentDb()
 app.use(express.json());
 
 //Routes
-// app.use("/api/auth", authRoutes);
+app.use("/api/auth", authRoutes);
 // app.use("/api/user", userRoutes);
 // app.use("/api/task", userRouters);
 // app.use("/api/reports", reportRoutes);
