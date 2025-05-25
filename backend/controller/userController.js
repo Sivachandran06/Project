@@ -8,7 +8,23 @@ const bcrypt = require("bcryptjs");
 
 const getUsers = async(req, res)=>{
     try{
+        const user = await User.find({role: 'member'}).select("-password");
         
+        //Add task Count to each User
+        const userWithTaskCounts = await Promise.all(user.map(async(user)=>{
+            const pendingTasks= await Task.countDocuments({assignedTo: user._id, status:"pending"});
+            const inProgressTask = await Task.countDocuments({assignedTo: user._id, status:"In progress"});
+            const completedTask = await Task.countDocuments({assignedTo: user._id, status: "Completed"});
+
+            return {
+                ...user._doc, //include all exixting user data
+                pendingTasks,
+                inProgressTask,
+                completedTask,
+            };
+        }));
+
+        res.json(userWithTaskCounts);
     }catch (error){
         res.status(500).json({message:"Server error", error: error.message})
     }
@@ -19,21 +35,12 @@ const getUsers = async(req, res)=>{
 // @access Private (Admin)
 const getUserById = async(req, res)=>{
     try{
-
+        const user = await User.findById(req.params.id).select("-Password");
+        if(!user) return res.status(404).json({message: "User not found"});
+        res.json(user);
     }catch (error){
         res.status(500).json({message:"Server error", error: error.message})
     }
 };
 
-//@desc Delete a user(Admin only)
-// @route DELETE api/users/:id
-// @access Private (Admin)
-const deleteUser = async(req, res)=>{
-    try{
-
-    }catch (error){
-        res.status(500).json({message:"Server error", error: error.message})
-    }
-};
-
-module.exports = {getUsers,getUserById,deleteUser}
+module.exports = {getUsers,getUserById}
