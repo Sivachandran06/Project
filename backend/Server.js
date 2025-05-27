@@ -6,6 +6,7 @@ const contentDb = require("./config/Db");
 
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
+const taskRouters = require("./routes/taskRoutes");
 
 const app = express();
 
@@ -13,7 +14,7 @@ const app = express();
 app.use(
     cros({
         origin: process.env.CLIENT_URL || "*",
-        methods:["GET","PUT","POST","DELET"],
+        methods:["GET","PUT","POST","DELETE"],
         allowedHeaders: ["Content-Type", "Authorization"],
     })
 );
@@ -26,7 +27,7 @@ app.use(express.json());
 //Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
-// app.use("/api/task", userRouters);
+app.use("/api/tasks", taskRouters);
 // app.use("/api/reports", reportRoutes);
 
 //Star Server
