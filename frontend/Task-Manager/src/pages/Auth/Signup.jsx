@@ -1,9 +1,13 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import AuthLayout from "../../componanets/Layouts/AuthLayouts";
 import { validateEmail } from "../../utils/helper";
 import ProfilePhotoSelector from "../../componanets/Inputs/ProfilePhotoSelector";
 import Input from "../../componanets/Inputs/Input";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import axiosInstance from "../../utils/axiosInstance";
+import { API_PATHS } from "../../utils/apiPath";
+import { UserContext } from "../../context/userContext";
+import uplodaImage from "../../utils/upLoadImage";
 
 const Signup = ()=>{
     const [profilePic, setProfilePic] = useState(null);
@@ -12,12 +16,16 @@ const Signup = ()=>{
     const [password, setPassword] = useState("");
     const [adminInviteToken, SetAdminInviteToken] = useState('');
 
-    const [error, setError] = useState(null)
+    const [error, setError] = useState(null);
+
+    const {updateUser} = useContext(UserContext);
+  const navigate = useNavigate();
 
     //Handel signUp Form submit
     const handeleSignup = async(e) => {
         e.preventDefault();
        
+        let profileImageUrl 
         if(!fullName){
           setError("Please enter full name")
           return;
@@ -33,6 +41,41 @@ const Signup = ()=>{
     
         setError("");
         //SignUp Api Call
+    try{
+
+      //upload image if present 
+      if(profilePic){
+        const imgUploadRes = await uplodaImage(profilePic);
+        profileImageUrl = imgUploadRes.imageUrl || "";
+      }
+      const response = await axiosInstance.post(API_PATHS.AUTH.REGISTER,{
+        name: fullName,
+        email,
+        password,
+        profileImageUrl,
+        adminInviteToken
+      });
+      const {token, role}=response.data;
+
+      if(token){
+        localStorage.setItem("token",token);
+        updateUser(response.data);  
+
+        //Redirect based on role
+        if(role === "admin"){
+          navigate("admin/dashboard");
+        }else {
+          navigate("user/dashboard");
+        }
+      }
+      
+    }catch(error){
+      if(error.response && error.response.data.message){
+        setError(error.response.data.message);
+      }else{
+        setError("Something went wrong. Please try again.");
+      }
+    }
       }
     return(
         <>
@@ -71,8 +114,8 @@ const Signup = ()=>{
               />
 
               <Input 
-                value={password}
-                onChange={({ target }) => setPassword(target.value)}
+                value={adminInviteToken}
+                onChange={({ target }) => SetAdminInviteToken(target.value)}
                 label="Admin Invite Token"
                 placeholder="6 Digit Code"
                 type="text"
