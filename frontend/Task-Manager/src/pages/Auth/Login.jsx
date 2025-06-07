@@ -1,19 +1,23 @@
 import React, { useState } from "react";
 import AuthLayout from "../../componanets/Layouts/AuthLayouts";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, Navigate } from "react-router-dom";
 import Input from "../../componanets/Inputs/Input";
 import { validateEmail } from "../../utils/helper";
+import axiosInstance from "../../utils/axiosInstance";
+import { API_PATHS } from "../../utils/apiPath";
 
 const Login = () => {
   const [email, setEmail]= useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
 
-  const navigation = useNavigate();
+  const navigate = useNavigate();
 
   // Handel login form Sumbmit
-  const handelLogin = async(e) => {
+  const handleLogin = async(e) => {
     e.preventDefault();
+    console.log("Logging in with:", email, password);
+    
    
     if(!validateEmail(email)){
       setError("Please enter a valid email Address")
@@ -25,6 +29,33 @@ const Login = () => {
     }
 
     setError("")
+
+    //login Api Call
+    try{
+      const response = await axiosInstance.post(API_PATHS.AUTH.LOGIN, {
+        email,
+        password,
+      });
+
+      const {token, role}= response.data;
+
+      if(token){
+        localStorage.setItem("token", token);
+
+        //Redirect based on role
+        if(role === "admin"){
+          navigate("/admin/dashboard");
+        }else {
+          navigate("/user/dashboard");
+        }
+      }
+    }catch(error){
+      if(error.response && error.response.data.message){
+        setError(error.response.data.message);
+      }else{
+        setError("Something went wrong. Please try again.");
+      }
+    }
   }
 
   return (
@@ -33,7 +64,7 @@ const Login = () => {
         <h3 className="text-xl font-semibold text-black">Welcome Back</h3>
         <p className="text-xs text-slate-700 mt-[5px] mb-6">Please enter your details to log in</p>
 
-        <form onSubmit={handelLogin}>
+        <form onSubmit={handleLogin}>
           <Input 
             value={email}
             onChange={({ target }) => setEmail(target.value)}
@@ -45,7 +76,7 @@ const Login = () => {
           <Input 
             value={password}
             onChange={({ target }) => setPassword(target.value)}
-            label="Password"
+            label="password"
             placeholder="Min 8 Characters"
             type="password"
           />

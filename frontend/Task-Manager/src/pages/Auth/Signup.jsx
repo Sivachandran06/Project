@@ -3,13 +3,14 @@ import AuthLayout from "../../componanets/Layouts/AuthLayouts";
 import { validateEmail } from "../../utils/helper";
 import ProfilePhotoSelector from "../../componanets/Inputs/ProfilePhotoSelector";
 import Input from "../../componanets/Inputs/Input";
+import { Link } from "react-router-dom";
 
 const Signup = ()=>{
     const [profilePic, setProfilePic] = useState(null);
     const [fullName, setFullName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [adminInviteToken, SetAdminInviteToken] = useState("");
+    const [adminInviteToken, SetAdminInviteToken] = useState('');
 
     const [error, setError] = useState(null)
 
@@ -64,11 +65,31 @@ const Signup = ()=>{
               <Input 
                 value={password}
                 onChange={({ target }) => setPassword(target.value)}
-                label="Password"
+                label="password"
                 placeholder="Min 8 Characters"
                 type="password"
               />
-            </div>
+
+              <Input 
+                value={password}
+                onChange={({ target }) => setPassword(target.value)}
+                label="Admin Invite Token"
+                placeholder="6 Digit Code"
+                type="text"
+              />
+              </div>
+             {error && <p className="text-red-500 text-xs pb-2.5">{error}</p>}
+
+             <button type="submit" className="btn-primary">
+              SIGN UP
+             </button>
+
+             <p className="text-[13px] text-slate-800 mt-3">
+               Already an account?{" "}
+               <Link className="font-medium text-primary underline" to="/login">
+                 Login
+               </Link>
+             </p>
           </form>
         </div>
         </AuthLayout>
