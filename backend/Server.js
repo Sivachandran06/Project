@@ -31,6 +31,9 @@ app.use("/api/users", userRoutes);
 app.use("/api/tasks", taskRouters);
 app.use("/api/reports", reportRoutes);
 
+//Server Uploads folder
+app.use("/uploads", express.static(path.join(__dirname,"uploads")));
+
 //Star Server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, ()=>console.log(`Server is running on port ${PORT}`))
