@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import DashboardLayout from "../../componanets/Layouts/DashboardLayout";
 import { PRIORITY_DATA } from "../../utils/data";
 import axiosInstance from "../../utils/axiosInstance";
@@ -15,7 +15,8 @@ import AddAttachmentsInput from "../../componanets/Inputs/AddAttachmentsInput";
 const CreatTask = ()=>{
 
     const location = useLocation();
-    const {taskId}= location.state || {};
+    const { taskId } = location.state || {};
+    console.log("TASK ID IS", taskId);
     const navigate = useNavigate();
 
     const [taskData, setTaskData]= useState({
@@ -24,7 +25,7 @@ const CreatTask = ()=>{
         priority: "Low",
         dueDate: null,
         assignedTo:[],
-        todoChecklist:[],
+        todoCheckList:[],
         attachments: [],
     });
 
@@ -49,6 +50,7 @@ const CreatTask = ()=>{
             dueDate: null,
             assignedTo:[],
             attachments:[],
+            todoCheckList:[],
         })
     };
 
@@ -56,15 +58,15 @@ const CreatTask = ()=>{
     const createTask = async()=>{
         setLoading(true);
         try{
-            const todoList = taskData.todoChecklist?.map((item)=>({
+            const todoList = taskData.todoCheckList?.map((item)=>({
                 text: item,
-                completed: false,
+                completed: false
             }));
 
             const response = await axiosInstance.post(API_PATHS.TASKS.CREATE_TASK,{
                 ...taskData,
                 dueDate:new Date(taskData.dueDate).toISOString(),
-                todoChecklist: todoList,
+                todoCheckList: todoList,
             });
             toast.success("Task Created Successfully");
 
@@ -78,7 +80,36 @@ const CreatTask = ()=>{
     };
 
     //Update Task
-    const updateTask = async()=>{};
+    const updateTask = async()=>{
+        setLoading(true);
+
+        try{
+            const todolist = taskData.todoCheckList?.map((item)=>{
+                const prevtodoCheckList = currentTask?.todoCheckList || [];
+                const matchedTask = prevtodoCheckList.find((task)=>task.text == item);
+
+                return{
+                    text: item,
+                    completed: matchedTask ? matchedTask.completed : false,
+                };
+            });
+
+            const response = await axiosInstance.put(API_PATHS.TASKS.UPDATE_TASK(taskId),
+            {
+                ...taskData,
+                dueDate: new Date(taskData.dueDate).toISOString(),
+                todoCheckList: todolist
+            }
+        );
+
+        toast.success("Task Update sucessfully");
+        }catch(error){
+            console.error("Error creating task:", error)
+            setLoading(false);
+        }finally{
+            setLoading(false);
+        }
+    };
 
     const handelSubmit = async()=>{
         setError(null);
@@ -100,7 +131,7 @@ const CreatTask = ()=>{
             setError("Task not assigned to any Member");
             return;
         }
-        if(taskData.todoChecklist?.length === 0){
+        if(taskData.todoCheckList?.length === 0){
             setError("Add atleast one todo task");
             return
         }
@@ -112,10 +143,42 @@ const CreatTask = ()=>{
     };
 
     //Get Task info by ID
-    const getTaskDetailsByID = async()=>{};
+    const getTaskDetailsByID = async()=>{
+        try{
+            const response = await axiosInstance.get(API_PATHS.TASKS.GET_TASK_BY_ID(taskId));
+            console.log(taskId, "TaskId")
+            if(response.data){
+                const taskInfo = response.data;
+                setCurrentTask(taskInfo);
+
+                setTaskData((prevState)=>({
+                    title: taskInfo.title,
+                    description:taskInfo.description,
+                    priority: taskInfo.priority,
+                    dueDate: taskInfo.dueDate
+                    ?moment(taskInfo.dueDate).format("YYYY-MM-DD")
+                    : null,
+                    assignedTo:taskInfo?.assignedTo?.map((item)=>item.text) || [],
+                    todoCheckList:
+                        taskInfo?.todoCheckList?.map((item)=> item?.text) || [],
+                    attachments:taskInfo.attachments || [],
+                }));
+            }
+        }catch(error){
+            console.error("Error fetching users:", error);
+        }
+    };
 
     //Delete Task
     const deleteTask = async()=>{};
+
+    useEffect(()=>{
+        if(taskId){
+            getTaskDetailsByID(taskId)
+            
+        }
+        return()=>{}
+    },[taskId])
     return(
         <>
         <DashboardLayout activeMenu={"Create Task"}> 
@@ -124,7 +187,7 @@ const CreatTask = ()=>{
                 <div className="form-card col-span-3">
                     <div className="flex items-center justify-between">
                         <h2 className="text-xl md:text-xl font-medium">
-                            {taskId ? "Update Task": "Create Task"}
+                            {taskId ? "Update Task" : "Create Task"}
                         </h2>
                         {taskId && (
                             <button className="flex items-center gap-1.5 text-[13px] font-medium text-rose-500 bg-rose-50 px-1 border border-rose-100 hover:border-rose-300 cursor-pointer"
@@ -186,7 +249,7 @@ const CreatTask = ()=>{
                             <input
                                 placeholder="Create App UI"
                                 className="form-input"
-                                value={taskData.dueDate}
+                                value={taskData.dueDate || []}
                                 onChange={({target})=> handelValueChange("dueDate",target.value)
                             }
                             type="date"
@@ -211,8 +274,8 @@ const CreatTask = ()=>{
                         </label>
 
                         <TodoListInput
-                            todoList = {taskData?.todoChecklist}
-                            setTodoList = {(value)=>handelValueChange("todoChecklist", value)
+                            todoList = {taskData?.todoCheckList}
+                            setTodoList = {(value)=>handelValueChange("todoCheckList", value)
                             }
                         />
                     </div>
@@ -236,6 +299,7 @@ const CreatTask = ()=>{
 
                     <div className="flex justify-end mt-7">
                         <button
+                            type="button"
                             className="add-btn"
                             onClick={handelSubmit}
                             disabled = {loading}
@@ -252,3 +316,6 @@ const CreatTask = ()=>{
     )
 }
 export default CreatTask;
+
+//6837fce3a6ab42b9deebce0f - createdBy
+//68527791a3f3a42062dea7a0 - _id
