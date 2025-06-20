@@ -28,7 +28,7 @@ const exportTasksReport = async (req,res)=>{
             .join(", ");
             worksheet.addRow({
                 _id:task._id,
-                titel:task.titel,
+                title:task.title,
                 description: task.description,
                 priority: task.priority,
                 status:task.status,
@@ -62,11 +62,13 @@ const exportTasksReport = async (req,res)=>{
 const exportUsersReport = async(req,res)=>{
     try{
         const users = await User.find().select("name email _id").lean();
-        const userTasks = await Task.find().populate(
+        const tasks = await Task.find().populate(
             "assignedTo",
             "name email _id"
         );
+
         const userTaskMap ={};
+
         users.forEach((user)=>{
             userTaskMap[user._id]={
                 name: user.name,
@@ -77,17 +79,17 @@ const exportUsersReport = async(req,res)=>{
                 completedTask: 0,
             };
         });
-        userTaskMap.forEach((task)=>{
-            if(task.assignedTo){
-                task.assignedTo.forEach((assignedUser)=>{
-                    if(userTaskMap[assignedUser._id]){
-                        userTaskMap[assignedUser._id].taskCount +=1;
+        tasks.forEach((task)=>{
+            if(task.assignedTo && Array.isArray(task.assignedTo)){
+                task.assignedTo.forEach((user)=>{
+                    if(userTaskMap[user._id]){
+                        userTaskMap[user._id].taskCount +=1;
                         if(task.status === "Pending"){
-                            userTaskMap[assignedUser._id].taskCount+=1;
+                            userTaskMap[user._id].taskCount+=1;
                         }else if(task.status === "In Progress"){
-                            userTaskMap[assignedUser._id].inProgressTasks +=1;
+                            userTaskMap[user._id].inProgressTasks +=1;
                         }else if(task.status === "Completed"){
-                            userTaskMap[assignedUser._id].completedTask +=1;
+                            userTaskMap[user._id].completedTask +=1;
                         }
                     }
                 });
@@ -102,11 +104,7 @@ const exportUsersReport = async(req,res)=>{
             {header: "Email", key: "email", width:40},
             {header: "Total Assigned Task", key: "taskCount", width: 20},
             {header: "Pending Task", key: "pendingTasks", width:20},
-            {
-                header: "In progress Tasks",
-                key: "inProgressTask",
-                width: 20,
-            },
+            {header: "In progress Tasks", key: "inProgressTask", width: 20},
             {header:"Completed Tasks", key:"completedTasks", width: 20},
         ];
         Object.values(userTaskMap).forEach((user)=>{
@@ -126,9 +124,8 @@ const exportUsersReport = async(req,res)=>{
             res.end();
         });
     }catch(error){
-        res
-        .status(500)
-        .json({message: "Error exporting tasks", error: error.message})
+        console.error("Error exporting user repoprt;", error);
+        res.status(500).json({message: "Error exporting tasks", error: error.message})
     }
 };
 
