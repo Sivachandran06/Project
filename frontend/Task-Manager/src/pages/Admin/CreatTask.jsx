@@ -11,6 +11,8 @@ import SelectDropdown from "../../componanets/Inputs/SelectDropdown";
 import SelectUsers from "../../componanets/Inputs/SelectUsers";
 import TodoListInput from "../../componanets/Inputs/TodoListInput";
 import AddAttachmentsInput from "../../componanets/Inputs/AddAttachmentsInput";
+import DeleteAlert from "../../componanets/DeleteAlert";
+import Modal from "../../componanets/Layouts/Modal";
 
 const CreatTask = ()=>{
 
@@ -26,7 +28,7 @@ const CreatTask = ()=>{
         dueDate: null,
         assignedTo:[],
         todoCheckList:[],
-        attachments: [],
+        attachment: [],
     });
 
     const [currentTask, setCurrentTask] = useState(null);
@@ -49,7 +51,7 @@ const CreatTask = ()=>{
             priority:"Low",
             dueDate: null,
             assignedTo:[],
-            attachments:[],
+            attachment:[],
             todoCheckList:[],
         })
     };
@@ -158,10 +160,10 @@ const CreatTask = ()=>{
                     dueDate: taskInfo.dueDate
                     ?moment(taskInfo.dueDate).format("YYYY-MM-DD")
                     : null,
-                    assignedTo:taskInfo?.assignedTo?.map((item)=>item.text) || [],
+                    assignedTo:taskInfo?.assignedTo?.map((item)=>item._id) || [],
                     todoCheckList:
                         taskInfo?.todoCheckList?.map((item)=> item?.text) || [],
-                    attachments:taskInfo.attachments || [],
+                    attachment:taskInfo.attachment || [],
                 }));
             }
         }catch(error){
@@ -170,7 +172,20 @@ const CreatTask = ()=>{
     };
 
     //Delete Task
-    const deleteTask = async()=>{};
+    const deleteTask = async()=>{
+        try{
+            await axiosInstance.delete(API_PATHS.TASKS.DELETE_TASK(taskId));
+
+            setOpenDeleteAlert(false);
+            toast.success("Expense details deleted successfully");
+            navigate(`/admin/tasks`)
+        }catch(error){
+            console.error(
+                "Error deleting expence",
+                error.response?.data?.message || error.message
+            );
+        }
+    };
 
     useEffect(()=>{
         if(taskId){
@@ -286,9 +301,9 @@ const CreatTask = ()=>{
                         </label>
 
                         <AddAttachmentsInput
-                            attachments = {taskData?. attachments}
-                            setAttachments = {(value)=>
-                                handelValueChange("attachments", value)
+                            attachment = {taskData?.attachment}
+                            setattachment = {(value)=>
+                                handelValueChange("attachment", value)
                             }
                         />
                     </div>
@@ -310,6 +325,16 @@ const CreatTask = ()=>{
                 </div>
             </div>
         </div>
+        <Modal
+            isOpen = {openDeleteAlert}
+            onClose = {()=>setOpenDeleteAlert(false)}
+            title = "Delete Task"
+        >
+            <DeleteAlert
+                content= "Are you sure you want to delete this task ?"
+                onDelete={()=>deleteTask()}
+            />
+        </Modal>
         
         </DashboardLayout>
         </>
