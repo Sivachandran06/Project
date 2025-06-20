@@ -23,7 +23,7 @@ export const API_PATHS ={
         GET_TASK_BY_ID: (taskId)=>`/api/tasks/${taskId}`,//Get task by ID
         CREATE_TASK: "/api/tasks", //Create a new task (Admin only)
         UPDATE_TASK: (taskId)=>`/api/tasks/${taskId}`, // Update task details
-        DELETE_TASL: (taskId)=>`api/tasks/${taskId}`, //Delete a task (Admin only)
+        DELETE_TASK: (taskId)=>`api/tasks/${taskId}`, //Delete a task (Admin only)
 
         UPDATE_TASK_STATUS: (tasksId) =>`/api/tasks/${tasksId}/status`, // Update tasks
         UPDATE_TASK_CHECKLIST: (taskId)=>`/api/tasks/${taskId}/todo`, //update todo checklist
@@ -31,7 +31,7 @@ export const API_PATHS ={
 
     REPORTS:{
         EXPORT_TASKS: "/api/reports/export/tasks", //Download all tasks as an Excel/PDF report 
-        EXPORT_USERS: "/api/reports/export/users", // Downlode user-task report
+        EXPORT_USERS: "/api/reports/export/user", // Downlode user-task report
     },
 
     IMAGE: {
