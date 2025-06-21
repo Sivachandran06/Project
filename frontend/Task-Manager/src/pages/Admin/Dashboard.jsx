@@ -30,8 +30,9 @@ const Dashboard = ()=>{
 
         //Prepare Chart data
         const prepareChartData = (data)=>{
+            console.log("DATA", data) ;  
             const taskDistribution = data?.taskDistribution || null;
-            const taskPriorityLevels = data?.taskPriorityLevels || null;
+            const taskPriorityLevels = data?.taskPrioritiesLevels || null;
 
             const taskDistributionData = [
                 {status: "Pending", count: taskDistribution?.Pending || 0},

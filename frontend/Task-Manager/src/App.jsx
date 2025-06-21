@@ -35,7 +35,7 @@ const App = () => {
           {/* User Routes */}
           <Route element={<PrivateRoute allowedRoles={["user"]} />}>
             <Route path="/user/dashboard" element={<UserDashboard />} />
-            <Route path="/user/my-tasks" element={<MyTask />} />
+            <Route path="/user/tasks" element={<MyTask />} />
             <Route path="/user/task-details/:id" element={<ViewTaskDetails />} />
           </Route>
 
