@@ -87,7 +87,7 @@ const creatTask = async (req, res) => {
             priority,
             dueDate,
             assignedTo,
-            attachments,
+            attachment,
             todoCheckList,
         } = req.body;
 
@@ -103,7 +103,7 @@ const creatTask = async (req, res) => {
             assignedTo,
             createdBy: req.user._id,
             todoCheckList,
-            attachments,
+            attachment,
         });
 
         res.status(201).json({ message: "Task created successfully", task });
