@@ -1,6 +1,6 @@
 require("dotenv").config();
 const express = require("express");
-const cros = require("cors");
+const cors = require("cors");
 const path = require("path");
 const contentDb = require("./config/Db");
 
@@ -11,13 +11,13 @@ const reportRoutes = require("./routes/reportRoutes");
 
 const app = express();
 
-// Middleware to handel CROS
+// Middleware to handel cors
 app.use(
-    cros({
-        origin: process.env.CLIENT_URL || "*",
-        methods:["GET","PUT","POST","DELETE"],
-        allowedHeaders: ["Content-Type", "Authorization"],
-    })
+  cors({
+    origin: "https://tasks-manager-frontend-ardg.onrender.com",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+  })
 );
 // Connect Database
 contentDb()
