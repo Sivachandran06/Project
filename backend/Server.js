@@ -17,6 +17,7 @@ app.use(
         origin: process.env.CLIENT_URL || "*",
         methods:["GET","PUT","POST","DELETE"],
         allowedHeaders: ["Content-Type", "Authorization"],
+        credentials: true
     })
 );
 // Connect Database
