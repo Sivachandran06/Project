@@ -13,11 +13,11 @@ const app = express();
 
 // Middleware to handel cors
 app.use(
-  cors({
-    origin: "https://tasks-manager-frontend-ardg.onrender.com",
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true,
-  })
+    cors({
+        origin: process.env.CLIENT_URL || "*",
+        methods:["GET","PUT","POST","DELETE"],
+        allowedHeaders: ["Content-Type", "Authorization"],
+    })
 );
 // Connect Database
 contentDb()
